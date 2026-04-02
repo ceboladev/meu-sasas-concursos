@@ -1,0 +1,27 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Questao {
+  id           String   @id @default(uuid())
+  enunciado    String   @db.Text
+  disciplina   String
+  banca        String
+  ano          Int
+  comentario   String?  @db.Text
+  createdAt    DateTime @default(now())
+  alternativas Alternativa[]
+}
+
+model Alternativa {
+  id         String  @id @default(uuid())
+  texto      String
+  isCorreta  Boolean
+  questaoId  String
+  questao    Questao @relation(fields: [questaoId], references: [id])
+}
