@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+/*import { prisma } from "@/lib/prisma";
 import SimuladoClient from "@/components/SimuladoClient";
 
 export default async function DashboardPage() {
@@ -14,3 +14,4 @@ export default async function DashboardPage() {
     </div>
   );
 }
+  */

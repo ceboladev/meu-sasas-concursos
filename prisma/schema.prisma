@@ -25,3 +25,11 @@ model Alternativa {
   questaoId  String
   questao    Questao @relation(fields: [questaoId], references: [id])
 }
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  password      String
+  createdAt     DateTime  @default(now())
+}
