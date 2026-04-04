@@ -5,41 +5,74 @@ import { useState } from "react";
 export default function QuestaoCard({
   questao,
   numero,
-  onResponder,
+  onVerificar,
+  jaVerificada,
 }: any) {
-  const [respondida, setRespondida] = useState(false);
+  const [selecionada, setSelecionada] = useState<string | null>(null);
+  const [resultado, setResultado] = useState<"certo" | "errado" | null>(null);
 
-  function responder(isCorreta: boolean) {
-    if (respondida) return;
+  function verificar() {
+    if (!selecionada || jaVerificada) return;
 
-    setRespondida(true);
-    onResponder(questao.id, isCorreta);
+    const alternativaEscolhida = questao.alternativas.find(
+      (alt: any) => alt.id === selecionada
+    );
+
+    const acertou = alternativaEscolhida?.isCorreta === true;
+
+    setResultado(acertou ? "certo" : "errado");
+    onVerificar(questao.id, acertou);
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow space-y-4">
-      <div className="text-sm text-zinc-500">
-        Questão {numero} • {questao.banca} • {questao.ano}
-      </div>
+    <div className="bg-white p-5 rounded shadow border">
+      <h4 className="font-semibold mb-3">
+        {numero}) {questao.enunciado}
+      </h4>
 
-      <h2 className="font-medium">{questao.enunciado}</h2>
+      {questao.alternativas?.map((alt: any) => {
+        const isCorreta = alt.isCorreta;
+        const isSelecionada = alt.id === selecionada;
 
-      <div className="space-y-2">
-        {questao.alternativas.map((alt: any, index: number) => {
-          let estilo =
-            "w-full text-left p-3 rounded-lg border cursor-pointer";
+        let classe = "";
 
-          return (
-            <button
-              key={alt.id}
-              onClick={() => responder(alt.isCorreta)}
-              className={estilo}
-            >
-              {String.fromCharCode(65 + index)}) {alt.texto}
-            </button>
-          );
-        })}
-      </div>
+        if (jaVerificada) {
+          if (isCorreta) classe = "bg-green-200"; // sempre mostra correta
+          else if (isSelecionada && !isCorreta) classe = "bg-red-200";
+        }
+
+        return (
+          <label
+            key={alt.id}
+            className={`block mb-2 p-2 rounded cursor-pointer ${classe}`}
+          >
+            <input
+              type="radio"
+              name={`q-${questao.id}`}
+              value={alt.id}
+              disabled={jaVerificada}
+              onChange={() => setSelecionada(alt.id)}
+              className="mr-2"
+            />
+            {alt.texto}
+          </label>
+        );
+      })}
+
+      <button
+        onClick={verificar}
+        disabled={jaVerificada || !selecionada}
+        className="mt-3 bg-[#2c3e50] text-white px-4 py-1 rounded"
+      >
+        Verificar Resposta
+      </button>
+
+      {resultado === "certo" && (
+        <p className="text-green-600 mt-2 font-semibold">✅ Você acertou!</p>
+      )}
+      {resultado === "errado" && (
+        <p className="text-red-600 mt-2 font-semibold">❌ Você errou!</p>
+      )}
     </div>
   );
 }
