@@ -1,5 +1,8 @@
-/*import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import SimuladoClient from "@/components/SimuladoClient";
+
+
+
 
 export default async function DashboardPage() {
   const questoes = await prisma.questao.findMany({
@@ -14,4 +17,4 @@ export default async function DashboardPage() {
     </div>
   );
 }
-  */
+  

@@ -11,7 +11,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (localStorage.getItem("logado") === "true") {
-      router.push("/");
+      router.push("/dashboard");
     }
   }, [router]);
 
@@ -38,7 +38,7 @@ export default function LoginPage() {
       localStorage.setItem("usuarioEmail", data.email);
       localStorage.setItem("usuarioPic", "https://i.pravatar.cc/38");
 
-      router.push("/");
+     router.push("/dashboard");
     } catch (err) {
       console.error(err);
       setErro("Erro de conexão");
