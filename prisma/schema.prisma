@@ -7,29 +7,50 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Nivel {
+  fundamental
+  medio
+  superior
+}
+
 model Questao {
-  id           String   @id @default(uuid())
-  enunciado    String   @db.Text
+  id           String        @id @default(uuid())
+  enunciado    String        @db.Text
   disciplina   String
   banca        String
   ano          Int
-  comentario   String?  @db.Text
-  createdAt    DateTime @default(now())
+  nivel        Nivel         @default(medio)
+  comentario   String?       @db.Text
+  createdAt    DateTime      @default(now())
   alternativas Alternativa[]
+  respostas    Resposta[]
 }
 
 model Alternativa {
-  id         String  @id @default(uuid())
-  texto      String
-  isCorreta  Boolean
-  questaoId  String
-  questao    Questao @relation(fields: [questaoId], references: [id])
+  id        String  @id @default(uuid())
+  texto     String
+  isCorreta Boolean
+  questaoId String
+  questao   Questao @relation(fields: [questaoId], references: [id])
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String?
-  email         String    @unique
-  password      String
-  createdAt     DateTime  @default(now())
+  id        String     @id @default(uuid())
+  name      String?
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  respostas Resposta[]
+}
+
+model Resposta {
+  id            String   @id @default(uuid())
+  userId        String
+  questaoId     String
+  alternativaId String
+  correta       Boolean
+  createdAt     DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  questao Questao @relation(fields: [questaoId], references: [id])
 }

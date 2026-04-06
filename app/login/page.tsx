@@ -1,44 +1,50 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function AuthPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+
+  const [isLogin, setIsLogin] = useState(true);
   const [erro, setErro] = useState("");
 
-  useEffect(() => {
-    if (localStorage.getItem("logado") === "true") {
-      router.push("/dashboard");
-    }
-  }, [router]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
 
+    const endpoint = isLogin ? "/api/login" : "/api/register";
+
+    const body = isLogin
+      ? { email, password }
+      : { name, email, password };
+
     try {
-      const res = await fetch(`/api/login`, {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setErro(data.error || "Erro ao logar");
+        setErro(data.error || "Erro");
         return;
       }
 
-      localStorage.setItem("logado", "true");
-      localStorage.setItem("usuarioNome", data.name);
-      localStorage.setItem("usuarioEmail", data.email);
-      localStorage.setItem("usuarioPic", "https://i.pravatar.cc/38");
+      // Se for cadastro, depois pode logar automaticamente
+      if (!isLogin) {
+        alert("Cadastro realizado com sucesso! Faça login.");
+        setIsLogin(true);
+        return;
+      }
 
-     router.push("/dashboard");
+      router.push("/dashboard");
     } catch (err) {
       console.error(err);
       setErro("Erro de conexão");
@@ -48,14 +54,29 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
-        onSubmit={handleLogin}
+        onSubmit={handleSubmit}
         className="bg-white p-8 rounded-xl shadow-md w-full max-w-sm space-y-4"
       >
-        <h1 className="text-2xl font-bold text-center mb-6">Dan Concursos</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">
+          {isLogin ? "Login" : "Cadastro"}
+        </h1>
 
         {erro && (
           <div className="bg-red-100 text-red-700 p-2 rounded text-center">
             {erro}
+          </div>
+        )}
+
+        {!isLogin && (
+          <div>
+            <label className="block font-medium">Nome</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              className="w-full p-2 border rounded mt-1"
+            />
           </div>
         )}
 
@@ -85,15 +106,20 @@ export default function LoginPage() {
           type="submit"
           className="w-full bg-[#2c3e50] text-white py-2 rounded hover:bg-[#1b2733] transition"
         >
-          Entrar
+          {isLogin ? "Entrar" : "Cadastrar"}
         </button>
 
         <button
           type="button"
-          onClick={() => router.push("/register")}
-          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600 transition"
+          onClick={() => {
+            setIsLogin(!isLogin);
+            setErro("");
+          }}
+          className="w-full text-sm text-blue-600 hover:underline"
         >
-          Cadastrar Novo Usuário
+          {isLogin
+            ? "Não tem conta? Cadastre-se"
+            : "Já tem conta? Fazer login"}
         </button>
       </form>
     </div>

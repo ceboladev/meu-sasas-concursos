@@ -1,194 +1,283 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-interface Alternativa {
-  id: string;
-  texto: string;
-  isCorreta: boolean;
-}
-
-interface Questao {
-  id: string;
-  enunciado: string;
-  disciplina: string;
-  banca: string;
-  ano: number;
-  comentario: string | null;
-  alternativas: Alternativa[];
-}
-
-interface Props {
-  questoes: Questao[];
-}
-
-export default function SimuladoClient({ questoes: iniciais }: Props) {
-  const [questoes, setQuestoes] = useState<Questao[]>(iniciais);
-  const [disciplina, setDisciplina] = useState("todos");
-  const [banca, setBanca] = useState("");
+export default function SimuladoClient({ questoes }: any) {
+  const router = useRouter();
+  const [indice, setIndice] = useState(0);
+  const [selecionada, setSelecionada] = useState<string | null>(null);
+  const [mostrarComentario, setMostrarComentario] = useState(false);
   const [acertos, setAcertos] = useState(0);
-  const [erros, setErros] = useState(0);
-  const [tempo, setTempo] = useState(0);
-  const [respondidas, setRespondidas] = useState<string[]>([]);
 
-  // Cronômetro
-  useEffect(() => {
-    const intervalo = setInterval(() => setTempo((prev) => prev + 1), 1000);
-    return () => clearInterval(intervalo);
-  }, []);
+  const [disciplina, setDisciplina] = useState("");
+  const [banca, setBanca] = useState("");
+  const [ano, setAno] = useState("");
+  const [nivel, setNivel] = useState("");
 
-  // Buscar questões filtradas
-  async function buscarQuestoes() {
-    try {
-      const res = await fetch(
-        `/api/questoes?disciplina=${disciplina}&banca=${banca}`
-      );
-      if (!res.ok) return;
-      const data: Questao[] = await res.json();
-      setQuestoes(data);
-      reiniciar();
-    } catch (err) {
-      console.error(err);
+  // 🔹 Listas únicas para filtros
+  const disciplinas = [...new Set(questoes.map((q: any) => q.disciplina))];
+  const bancas = [...new Set(questoes.map((q: any) => q.banca))];
+  const anos = [...new Set(questoes.map((q: any) => q.ano))];
+
+  // 🔹 Filtrar questões
+  const questoesFiltradas = questoes.filter((q: any) => {
+  return (
+    (disciplina ? q.disciplina === disciplina : true) &&
+    (banca ? q.banca === banca : true) &&
+    (ano ? q.ano === Number(ano) : true) &&
+    (nivel ? q.nivel === nivel : true)
+  );
+});
+
+  const questao = questoesFiltradas[indice];
+
+  async function selecionarAlternativa(alt: any) {
+    await fetch("/api/resposta", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    questaoId: questao.id,
+    alternativaId: alt.id,
+    correta: alt.isCorreta
+  })
+});
+
+
+    if (selecionada) return;
+
+    setSelecionada(alt.id);
+
+    if (alt.isCorreta) {
+      setAcertos((prev) => prev + 1);
     }
   }
 
-  function verificarResposta(questaoId: string, alt: Alternativa) {
-    if (respondidas.includes(questaoId)) return;
-
-    setRespondidas((prev) => [...prev, questaoId]);
-
-    if (alt.isCorreta) setAcertos((prev) => prev + 1);
-    else setErros((prev) => prev + 1);
+  function proxima() {
+    if (indice < questoesFiltradas.length - 1) {
+      setSelecionada(null);
+      setMostrarComentario(false);
+      setIndice((prev) => prev + 1);
+    }
   }
 
-  function reiniciar() {
-    setAcertos(0);
-    setErros(0);
-    setTempo(0);
-    setRespondidas([]);
+  function anterior() {
+    if (indice > 0) {
+      setSelecionada(null);
+      setMostrarComentario(false);
+      setIndice((prev) => prev - 1);
+    }
   }
 
-  function logout() {
-    localStorage.clear();
-    window.location.href = "/login";
-  }
+  const progresso =
+    questoesFiltradas.length > 0
+      ? ((indice + 1) / questoesFiltradas.length) * 100
+      : 0;
 
-  const total = acertos + erros;
-  const porcentagem = total > 0 ? ((acertos / total) * 100).toFixed(0) : 0;
-  const horas = String(Math.floor(tempo / 3600)).padStart(2, "0");
-  const minutos = String(Math.floor((tempo % 3600) / 60)).padStart(2, "0");
-  const segundos = String(tempo % 60).padStart(2, "0");
+  if (questoesFiltradas.length === 0) {
+    return (
+      <div className="bg-white p-6 rounded-xl shadow-sm border">
+        Nenhuma questão encontrada com esses filtros.
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* HEADER */}
-      <header className="bg-[#2c3e50] text-white px-6 py-4 flex justify-between items-center shadow">
-        <h1 className="text-xl font-bold">Dan Concursos</h1>
+    
+  <div className="space-y-6">
+
+    {/* 🔹 HEADER SUPERIOR */}
+    <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border">
+      <h1 className="text-xl font-bold text-[#2c3e50]">
+        Banco de Questões
+      </h1>
+
+      <div className="flex gap-3">
         <button
-          onClick={logout}
-          className="bg-red-500 px-3 py-1 rounded hover:bg-red-600"
+          onClick={() => router.push("/dashboard/caderno")}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+        >
+          📒 Meu Caderno
+        </button>
+
+        <button
+          onClick={() => {
+            localStorage.removeItem("logado");
+            router.push("/login");
+          }}
+          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
         >
           Sair
         </button>
-      </header>
+      </div>
+    </div>
+      {/* 🔹 FILTROS */}
+      <div className="bg-white p-4 rounded-xl shadow-sm border">
+        <div className="grid md:grid-cols-4 gap-4">
+          <select
+            value={disciplina}
+            onChange={(e) => {
+              setDisciplina(e.target.value);
+              setIndice(0);
+            }}
+            className="border p-2 rounded"
+          >
+            <option value="">Disciplina</option>
+            {disciplinas.map((d: any) => (
+              <option key={d}>{d}</option>
+            ))}
+          </select>
 
-      <main className="max-w-7xl mx-auto mt-6 grid grid-cols-12 gap-6 px-4">
-        {/* SIDEBAR */}
-        <aside className="col-span-12 md:col-span-3 bg-white p-5 rounded-lg shadow space-y-4 h-fit">
-          <h3 className="font-semibold">Filtros</h3>
+          <select
+            value={banca}
+            onChange={(e) => {
+              setBanca(e.target.value);
+              setIndice(0);
+            }}
+            className="border p-2 rounded"
+          >
+            <option value="">Banca</option>
+            {bancas.map((b: any) => (
+              <option key={b}>{b}</option>
+            ))}
+          </select>
 
-          <div>
-            <label>Disciplina:</label>
-            <select
-              value={disciplina}
-              onChange={(e) => setDisciplina(e.target.value)}
-              className="w-full border p-2 rounded mt-1"
-            >
-              <option value="todos">Todas</option>
-              <option value="portugues">Português</option>
-              <option value="informatica">Informática</option>
-              <option value="direito">Direito Constitucional</option>
-            </select>
-          </div>
+          <select
+            value={ano}
+            onChange={(e) => {
+              setAno(e.target.value);
+              setIndice(0);
+            }}
+            className="border p-2 rounded"
+          >
+            <option value="">Ano</option>
+            {anos.map((a: any) => (
+              <option key={a}>{a}</option>
+            ))}
+          </select>
 
-          <div>
-            <label>Banca:</label>
-            <input
-              type="text"
-              value={banca}
-              onChange={(e) => setBanca(e.target.value)}
-              placeholder="Ex: FGV, IBADE..."
-              className="w-full border p-2 rounded mt-1"
-            />
-          </div>
+          <select
+  value={nivel}
+  onChange={(e) => {
+    setNivel(e.target.value);
+    setIndice(0);
+  }}
+  className="border p-2 rounded"
+>
+  <option value="">Nível</option>
+  <option value="FUNDAMENTAL">Fundamental</option>
+  <option value="MEDIO">Médio</option>
+  <option value="SUPERIOR">Superior</option>
+</select>
 
           <button
-            onClick={buscarQuestoes}
-            className="w-full bg-[#2c3e50] text-white py-2 rounded mt-2"
+            onClick={() => {
+              setDisciplina("");
+              setBanca("");
+              setAno("");
+              setIndice(0);
+            }}
+            className="bg-gray-200 rounded px-4"
           >
-            FILTRAR QUESTÕES
+            Limpar
           </button>
-        </aside>
+        </div>
+      </div>
 
-        {/* FEED */}
-        <section className="col-span-12 md:col-span-9 space-y-6">
-          {/* PLACAR */}
-          <div className="flex justify-around items-center bg-[#2c3e50] text-white p-4 rounded-lg shadow">
-            <div>✅ Acertos: {acertos}</div>
-            <div>❌ Erros: {erros}</div>
-            <div>📊 {porcentagem}%</div>
-            <div>⏱ {horas}:{minutos}:{segundos}</div>
-            <button onClick={reiniciar} className="text-xl" title="Reiniciar">
-              🔄
-            </button>
-          </div>
+      {/* 🔹 Barra de Progresso */}
+      <div>
+        <div className="flex justify-between text-sm text-gray-500 mb-1">
+          <span>
+            Questão {indice + 1} de {questoesFiltradas.length}
+          </span>
+          <span>{Math.round(progresso)}%</span>
+        </div>
+        <div className="w-full bg-gray-200 h-2 rounded-full">
+          <div
+            className="bg-[#2c3e50] h-2 rounded-full"
+            style={{ width: `${progresso}%` }}
+          />
+        </div>
+      </div>
 
-          {/* QUESTÕES */}
-          {questoes.map((q, index) => (
-            <div
-              key={q.id}
-              className="bg-white p-4 rounded-lg shadow space-y-2"
+      {/* 🔹 Estatísticas */}
+      <div className="flex gap-6 text-sm">
+        <span>✅ Acertos: {acertos}</span>
+        <span>❌ Erros: {indice + 1 - acertos}</span>
+      </div>
+
+      {/* 🔹 Card da Questão */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border">
+        <p className="text-xs text-gray-500 mb-2">
+          {questao.disciplina} • {questao.banca} • {questao.ano}
+        </p>
+
+        <h2 className="font-medium mb-6">{questao.enunciado}</h2>
+
+        <div className="space-y-3">
+          {questao.alternativas.map((alt: any) => {
+            let estilo = "border hover:bg-gray-50";
+
+            if (selecionada) {
+              if (alt.isCorreta) {
+                estilo = "bg-green-100 border-green-500";
+              } else if (alt.id === selecionada) {
+                estilo = "bg-red-100 border-red-500";
+              }
+            }
+
+            return (
+              <button
+                key={alt.id}
+                onClick={() => selecionarAlternativa(alt)}
+                className={`w-full text-left p-3 rounded-lg border transition ${estilo}`}
+              >
+                {alt.texto}
+              </button>
+            );
+          })}
+        </div>
+
+        {selecionada && (
+          <div className="mt-6">
+            <button
+              onClick={() =>
+                setMostrarComentario(!mostrarComentario)
+              }
+              className="text-[#2c3e50] font-medium text-sm"
             >
-              <h4 className="font-semibold">
-                {index + 1}. {q.enunciado}
-              </h4>
+              {mostrarComentario
+                ? "Ocultar comentário"
+                : "Mostrar comentário"}
+            </button>
 
-              {q.alternativas.map((alt) => {
-                const jaRespondida = respondidas.includes(q.id);
-                const correta = alt.isCorreta;
+            {mostrarComentario && (
+              <div className="mt-3 p-4 bg-gray-50 rounded-lg text-sm">
+                {questao.comentario || "Sem comentário disponível"}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
-                return (
-                  <label
-                    key={alt.id}
-                    className={`block mb-2 p-2 rounded border cursor-pointer ${
-                      jaRespondida
-                        ? correta
-                          ? "bg-green-200 border-green-500"
-                          : "bg-red-100 border-red-300"
-                        : "hover:bg-gray-100"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name={`questao-${q.id}`}
-                      disabled={jaRespondida}
-                      onChange={() => verificarResposta(q.id, alt)}
-                      className="mr-2"
-                    />
-                    {alt.texto}
-                  </label>
-                );
-              })}
+      {/* 🔹 Navegação */}
+      <div className="flex justify-between">
+        <button
+          disabled={indice === 0}
+          onClick={anterior}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Anterior
+        </button>
 
-              {respondidas.includes(q.id) && q.comentario && (
-                <div className="text-sm text-gray-600 mt-2">
-                  💡 {q.comentario}
-                </div>
-              )}
-            </div>
-          ))}
-        </section>
-      </main>
+        <button
+          disabled={indice === questoesFiltradas.length - 1}
+          onClick={proxima}
+          className="px-4 py-2 bg-[#2c3e50] text-white rounded disabled:opacity-50"
+        >
+          Próxima
+        </button>
+      </div>
     </div>
   );
 }
