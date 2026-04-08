@@ -165,9 +165,9 @@ export default function SimuladoClient({ questoes }: any) {
   className="border p-2 rounded"
 >
   <option value="">Nível</option>
-  <option value="FUNDAMENTAL">Fundamental</option>
-  <option value="MEDIO">Médio</option>
-  <option value="SUPERIOR">Superior</option>
+  <option value="fundamental">Fundamental</option>
+  <option value="medio">Médio</option>
+  <option value="superior">Superior</option>
 </select>
 
           <button
@@ -211,6 +211,22 @@ export default function SimuladoClient({ questoes }: any) {
         <p className="text-xs text-gray-500 mb-2">
           {questao.disciplina} • {questao.banca} • {questao.ano}
         </p>
+
+        {questao.textoBase && (
+  <p className="mb-4 whitespace-pre-line">
+    {questao.textoBase}
+  </p>
+)}
+
+      
+
+        {questao.imagem && (
+  <img
+    src={questao.imagem}
+    alt="Imagem da questão"
+    className="my-4 max-h-80 object-contain"
+  />
+)}
 
         <h2 className="font-medium mb-6">{questao.enunciado}</h2>
 

@@ -1,37 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-enum Nivel {
-  fundamental
-  medio
-  superior
-}
-
 model Questao {
   id           String        @id @default(uuid())
-  enunciado    String        @db.Text
+
+  textoBase    String?       // Texto longo antes da pergunta
+  enunciado    String        // Pergunta principal
+  imagem       String?       // URL da imagem
+
   disciplina   String
   banca        String
   ano          Int
-  nivel        Nivel         @default(medio)
-  comentario   String?       @db.Text
+  comentario   String?
   createdAt    DateTime      @default(now())
+  nivel        Nivel         @default(medio)
+
   alternativas Alternativa[]
   respostas    Resposta[]
+
+  @@index([disciplina])
+  @@index([banca])
+  @@index([ano])
 }
 
 model Alternativa {
-  id        String  @id @default(uuid())
+  id        String        @id @default(uuid())
   texto     String
   isCorreta Boolean
   questaoId String
-  questao   Questao @relation(fields: [questaoId], references: [id])
+
+  questao   Questao       @relation(fields: [questaoId], references: [id], onDelete: Cascade)
+  respostas Resposta[]
+
+  @@index([questaoId])
 }
 
 model User {
@@ -40,17 +47,29 @@ model User {
   email     String     @unique
   password  String
   createdAt DateTime   @default(now())
+
   respostas Resposta[]
 }
 
 model Resposta {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   userId        String
   questaoId     String
   alternativaId String
   correta       Boolean
-  createdAt     DateTime @default(now())
+  createdAt     DateTime    @default(now())
 
-  user    User    @relation(fields: [userId], references: [id])
-  questao Questao @relation(fields: [questaoId], references: [id])
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questao       Questao     @relation(fields: [questaoId], references: [id], onDelete: Cascade)
+  alternativa   Alternativa @relation(fields: [alternativaId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([questaoId])
+  @@index([alternativaId])
+}
+
+enum Nivel {
+  fundamental
+  medio
+  superior
 }
