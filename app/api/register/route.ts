@@ -16,7 +16,7 @@ const password = body.password;
     const hash = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
-      data: { name, email, password: hash },
+      data: { nome: name, email, password: hash }
     });
 
     return NextResponse.json({ name: user.name, email: user.email });

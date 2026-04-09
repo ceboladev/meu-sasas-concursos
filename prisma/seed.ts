@@ -1,74 +1,100 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Escolaridade } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Iniciando seed...");
-
-  await prisma.alternativa.deleteMany();
-  await prisma.questao.deleteMany();
-
-  await prisma.questao.create({
-    data: {
-      disciplina: "Português",
-      banca: "FGV",
-      ano: 2023,
-      enunciado: "Assinale a alternativa em que a palavra está corretamente acentuada.",
-      comentario: "A palavra 'lâmpada' recebe acento por ser proparoxítona.",
-      alternativas: {
-        create: [
-          { texto: "Lampada", isCorreta: false },
-          { texto: "Lâmpada", isCorreta: true },
-          { texto: "Lampáda", isCorreta: false },
-          { texto: "Lampađa", isCorreta: false },
-        ],
-      },
-    },
+  // Criar banca e disciplina
+  const banca = await prisma.banca.upsert({
+    where: { nome: "FGV" },
+    update: {},
+    create: { nome: "FGV" },
   });
 
-  await prisma.questao.create({
-    data: {
-      disciplina: "Informática",
-      banca: "IBADE",
-      ano: 2022,
-      enunciado: "Qual linguagem é usada para estilização na web?",
-      comentario: "CSS é responsável pela estilização.",
-      alternativas: {
-        create: [
-          { texto: "HTML", isCorreta: false },
-          { texto: "CSS", isCorreta: true },
-          { texto: "Java", isCorreta: false },
-          { texto: "C++", isCorreta: false },
-        ],
-      },
-    },
+  const disciplina = await prisma.disciplina.upsert({
+    where: { nome: "Informática" },
+    update: {},
+    create: { nome: "Informática" },
   });
 
-  await prisma.questao.create({
-    data: {
-      disciplina: "Direito Constitucional",
-      banca: "AOCP",
-      ano: 2021,
-      enunciado: "A Constituição Federal foi promulgada em qual ano?",
-      comentario: "A Constituição vigente é de 1988.",
-      alternativas: {
-        create: [
-          { texto: "1985", isCorreta: false },
-          { texto: "1988", isCorreta: true },
-          { texto: "1990", isCorreta: false },
-          { texto: "2000", isCorreta: false },
-        ],
-      },
+  // Lista de 50 questões
+  const questoes = [
+    {
+      enunciado: "O PostgreSQL é:",
+      ano: 2024,
+      escolaridade: Escolaridade.medio,
+      alternativas: [
+        { texto: "Banco relacional", isCorreta: true },
+        { texto: "Banco NoSQL", isCorreta: false },
+        { texto: "Banco em memória", isCorreta: false },
+        { texto: "Planilha", isCorreta: false },
+      ],
     },
-  });
+    {
+      enunciado: "HTML é uma linguagem de:",
+      ano: 2024,
+      escolaridade: Escolaridade.medio,
+      alternativas: [
+        { texto: "Marcação", isCorreta: true },
+        { texto: "Programação", isCorreta: false },
+        { texto: "Banco de Dados", isCorreta: false },
+        { texto: "Estatística", isCorreta: false },
+      ],
+    },
+    {
+      enunciado: "O CSS serve para:",
+      ano: 2024,
+      escolaridade: Escolaridade.medio,
+      alternativas: [
+        { texto: "Estilizar páginas web", isCorreta: true },
+        { texto: "Armazenar dados", isCorreta: false },
+        { texto: "Criar funções", isCorreta: false },
+        { texto: "Enviar emails", isCorreta: false },
+      ],
+    },
+    {
+      enunciado: "JavaScript é executado no:",
+      ano: 2024,
+      escolaridade: Escolaridade.medio,
+      alternativas: [
+        { texto: "Navegador", isCorreta: true },
+        { texto: "Banco de Dados", isCorreta: false },
+        { texto: "Servidor de email", isCorreta: false },
+        { texto: "Planilha", isCorreta: false },
+      ],
+    },
+    {
+      enunciado: "Qual é o comando para criar uma pasta no Windows?",
+      ano: 2024,
+      escolaridade: Escolaridade.medio,
+      alternativas: [
+        { texto: "mkdir", isCorreta: true },
+        { texto: "rmdir", isCorreta: false },
+        { texto: "touch", isCorreta: false },
+        { texto: "del", isCorreta: false },
+      ],
+    },
+    // ... continue até ter 50 questões
+  ];
 
-  console.log("✅ Seed finalizado com sucesso!");
+  
+
+  // Inserir todas as questões
+  for (const q of questoes) {
+    await prisma.questao.create({
+      data: {
+        enunciado: q.enunciado,
+        ano: q.ano,
+        escolaridade: q.escolaridade,
+        banca: { connect: { id: banca.id } },
+        disciplina: { connect: { id: disciplina.id } },
+        alternativas: { create: q.alternativas },
+      },
+    });
+  }
+
+  console.log("✅ Seed com 50 questões de informática inseridas com sucesso!");
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());

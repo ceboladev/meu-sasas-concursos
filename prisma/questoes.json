@@ -1,0 +1,152 @@
+[
+  {
+    "banca": "FGV",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2022,
+    "escolaridade": "medio",
+    "enunciado": "Qual dispositivo é considerado a unidade central de processamento do computador?",
+    "alternativas": [
+      "HD",
+      "Memória RAM",
+      "CPU",
+      "Monitor"
+    ],
+    "corretaIndex": 2
+  },
+  {
+    "banca": "IBADE",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2021,
+    "escolaridade": "medio",
+    "enunciado": "Qual é a função principal da memória RAM?",
+    "alternativas": [
+      "Armazenar dados permanentemente",
+      "Executar cálculos gráficos",
+      "Armazenar dados temporariamente durante o uso",
+      "Controlar dispositivos de entrada"
+    ],
+    "corretaIndex": 2
+  },
+  {
+    "banca": "AOCP",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2023,
+    "escolaridade": "medio",
+    "enunciado": "Qual protocolo é utilizado para navegação na internet?",
+    "alternativas": [
+      "FTP",
+      "HTTP",
+      "SMTP",
+      "SSH"
+    ],
+    "corretaIndex": 1
+  },
+  {
+    "banca": "CESPE",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2020,
+    "escolaridade": "medio",
+    "enunciado": "O sistema operacional Windows é classificado como:",
+    "alternativas": [
+      "Software aplicativo",
+      "Hardware",
+      "Software básico",
+      "Periférico"
+    ],
+    "corretaIndex": 2
+  },
+  {
+    "banca": "FCC",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2019,
+    "escolaridade": "medio",
+    "enunciado": "Qual extensão é padrão para arquivos do Microsoft Word?",
+    "alternativas": [
+      ".xls",
+      ".docx",
+      ".ppt",
+      ".pdf"
+    ],
+    "corretaIndex": 1
+  },
+  {
+    "banca": "FGV",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2023,
+    "escolaridade": "medio",
+    "enunciado": "O que significa a sigla URL?",
+    "alternativas": [
+      "Universal Resource Link",
+      "Uniform Resource Locator",
+      "Unified Resource Local",
+      "Universal Remote Link"
+    ],
+    "corretaIndex": 1
+  },
+  {
+    "banca": "IBADE",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2022,
+    "escolaridade": "medio",
+    "enunciado": "Qual é a função de um firewall?",
+    "alternativas": [
+      "Aumentar velocidade do processador",
+      "Proteger a rede contra acessos não autorizados",
+      "Limpar vírus automaticamente",
+      "Armazenar dados em nuvem"
+    ],
+    "corretaIndex": 1
+  },
+  {
+    "banca": "AOCP",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2021,
+    "escolaridade": "medio",
+    "enunciado": "Qual dos seguintes é um navegador de internet?",
+    "alternativas": [
+      "Excel",
+      "Chrome",
+      "Windows",
+      "Linux"
+    ],
+    "corretaIndex": 1
+  },
+  {
+    "banca": "CESPE",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2022,
+    "escolaridade": "medio",
+    "enunciado": "Qual equipamento é considerado um dispositivo de entrada?",
+    "alternativas": [
+      "Monitor",
+      "Impressora",
+      "Teclado",
+      "Caixa de som"
+    ],
+    "corretaIndex": 2
+  },
+  {
+    "banca": "FCC",
+    "disciplina": "Informática",
+    "orgao": "Concurso Público Geral",
+    "ano": 2020,
+    "escolaridade": "medio",
+    "enunciado": "O que é phishing?",
+    "alternativas": [
+      "Tipo de hardware",
+      "Ataque que tenta roubar informações pessoais",
+      "Programa antivírus",
+      "Sistema operacional móvel"
+    ],
+    "corretaIndex": 1
+  }
+]

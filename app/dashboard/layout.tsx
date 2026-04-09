@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({
@@ -8,6 +9,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const [menuAberto, setMenuAberto] = useState(false);
 
   function sair() {
     localStorage.removeItem("logado");
@@ -18,60 +20,110 @@ export default function DashboardLayout({
   }
 
   return (
-     <div className="flex min-h-screen">
-      
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white p-6">
-        <h2 className="text-2xl font-bold mb-8">
-          Meu SaaS
-        </h2>
+    <div className="flex min-h-screen bg-gray-100">
 
-        <nav className="space-y-4">
-          <a
-            href="/dashboard"
-            className="block hover:bg-gray-700 p-2 rounded-lg"
+      {/* OVERLAY MOBILE */}
+      {menuAberto && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          onClick={() => setMenuAberto(false)}
+        />
+      )}
+
+      {/* SIDEBAR */}
+      <aside
+        className={`
+          fixed md:static z-50
+          w-64 bg-gray-900 text-white
+          h-full md:h-auto
+          transform transition-transform duration-300
+          ${menuAberto ? "translate-x-0" : "-translate-x-full"}
+          md:translate-x-0
+        `}
+      >
+        <div className="flex flex-col h-full p-6">
+
+          {/* Logo */}
+          <h2 className="text-2xl font-bold mb-10">
+            Dan Concursos
+          </h2>
+
+          {/* Navegação */}
+          <nav className="flex flex-col gap-3 text-sm">
+
+            <a
+              href="/dashboard"
+              className="p-3 rounded-lg hover:bg-gray-800 transition"
+            >
+              📊 Dashboard
+            </a>
+
+            <a
+              href="/dashboard/simulados"
+              className="p-3 rounded-lg hover:bg-gray-800 transition"
+            >
+              📝 Simulados
+            </a>
+
+            <a
+              href="/dashboard/historico"
+              className="p-3 rounded-lg hover:bg-gray-800 transition"
+            >
+              📈 Histórico
+            </a>
+
+            <a
+              href="/dashboard/favoritas"
+              className="p-3 rounded-lg hover:bg-gray-800 transition"
+            >
+              ⭐ Favoritas
+            </a>
+
+          </nav>
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Botão sair */}
+          <button
+            onClick={sair}
+            className="bg-red-500 hover:bg-red-600 transition p-3 rounded-lg text-sm"
           >
-            📊 Dashboard
-          </a>
-
-          <a
-            href="/dashboard/simulados"
-            className="block hover:bg-gray-700 p-2 rounded-lg"
-          >
-            📝 Simulados
-          </a>
-
-          <a
-            href="/dashboard/historico"
-            className="block hover:bg-gray-700 p-2 rounded-lg"
-          >
-            📈 Histórico
-          </a>
-
-          <a
-            href="/dashboard/favoritas"
-            className="block hover:bg-gray-700 p-2 rounded-lg"
-          >
-            ⭐ Favoritas
-          </a>
-        </nav>
-      
-
-        <button
-          onClick={sair}
-          className="mt-auto bg-red-500 hover:bg-red-600 text-white py-2 rounded text-sm"
-        >
-          Sair
-        </button>
+            Sair
+          </button>
+        </div>
       </aside>
 
-      <main className="flex-1 flex flex-col">
-        <header className="bg-gray-900 shadow-sm p-4">
-          <h1 className="font-semibold text-white-600">Dan Concursos</h1>
+      {/* CONTEÚDO */}
+      <div className="flex-1 flex flex-col">
+
+        {/* HEADER */}
+        <header className="bg-white shadow-sm p-4 flex items-center justify-between">
+
+          {/* Botão mobile */}
+          <button
+            className="md:hidden text-xl"
+            onClick={() => setMenuAberto(!menuAberto)}
+          >
+            ☰
+          </button>
+
+          <h1 className="font-semibold text-gray-700">
+            Painel do Aluno
+          </h1>
+
+          <div className="text-sm text-gray-500">
+            Bem-vindo 👋
+          </div>
+
         </header>
 
-        <div className="p-8">{children}</div>
-      </main>
+        {/* MAIN */}
+        <main className="flex-1 p-4 sm:p-6 md:p-8">
+          {children}
+        </main>
+
+      </div>
     </div>
   );
 }

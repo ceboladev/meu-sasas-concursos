@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SimuladoClient({ questoes }: any) {
   const router = useRouter();
+
   const [indice, setIndice] = useState(0);
   const [selecionada, setSelecionada] = useState<string | null>(null);
   const [mostrarComentario, setMostrarComentario] = useState(false);
@@ -15,36 +16,42 @@ export default function SimuladoClient({ questoes }: any) {
   const [ano, setAno] = useState("");
   const [nivel, setNivel] = useState("");
 
-  // 🔹 Listas únicas para filtros
+  // Listas únicas
   const disciplinas = [...new Set(questoes.map((q: any) => q.disciplina))];
   const bancas = [...new Set(questoes.map((q: any) => q.banca))];
   const anos = [...new Set(questoes.map((q: any) => q.ano))];
 
-  // 🔹 Filtrar questões
+  // Filtro
   const questoesFiltradas = questoes.filter((q: any) => {
-  return (
-    (disciplina ? q.disciplina === disciplina : true) &&
-    (banca ? q.banca === banca : true) &&
-    (ano ? q.ano === Number(ano) : true) &&
-    (nivel ? q.nivel === nivel : true)
-  );
-});
+    return (
+      (!disciplina || q.disciplina === disciplina) &&
+      (!banca || q.banca === banca) &&
+      (!ano || q.ano === Number(ano)) &&
+      (!nivel || q.nivel === nivel)
+    );
+  });
+
+  // Evita índice inválido
+  useEffect(() => {
+    if (indice >= questoesFiltradas.length) {
+      setIndice(0);
+    }
+  }, [questoesFiltradas]);
 
   const questao = questoesFiltradas[indice];
 
   async function selecionarAlternativa(alt: any) {
-    await fetch("/api/resposta", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    questaoId: questao.id,
-    alternativaId: alt.id,
-    correta: alt.isCorreta
-  })
-});
-
-
     if (selecionada) return;
+
+    await fetch("/api/resposta", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        questaoId: questao.id,
+        alternativaId: alt.id,
+        correta: alt.isCorreta,
+      }),
+    });
 
     setSelecionada(alt.id);
 
@@ -83,35 +90,35 @@ export default function SimuladoClient({ questoes }: any) {
   }
 
   return (
-    
-  <div className="space-y-6">
+    <div className="space-y-6">
 
-    {/* 🔹 HEADER SUPERIOR */}
-    <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border">
-      <h1 className="text-xl font-bold text-[#2c3e50]">
-        Banco de Questões
-      </h1>
+      {/* HEADER */}
+      <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border">
+        <h1 className="text-xl font-bold text-[#2c3e50]">
+          Banco de Questões
+        </h1>
 
-      <div className="flex gap-3">
-        <button
-          onClick={() => router.push("/dashboard/caderno")}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
-        >
-          📒 Meu Caderno
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => router.push("/dashboard/caderno")}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition"
+          >
+            📒 Meu Caderno
+          </button>
 
-        <button
-          onClick={() => {
-            localStorage.removeItem("logado");
-            router.push("/login");
-          }}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-        >
-          Sair
-        </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem("logado");
+              router.push("/login");
+            }}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+          >
+            Sair
+          </button>
+        </div>
       </div>
-    </div>
-      {/* 🔹 FILTROS */}
+
+      {/* FILTROS */}
       <div className="bg-white p-4 rounded-xl shadow-sm border">
         <div className="grid md:grid-cols-4 gap-4">
           <select
@@ -157,24 +164,25 @@ export default function SimuladoClient({ questoes }: any) {
           </select>
 
           <select
-  value={nivel}
-  onChange={(e) => {
-    setNivel(e.target.value);
-    setIndice(0);
-  }}
-  className="border p-2 rounded"
->
-  <option value="">Nível</option>
-  <option value="fundamental">Fundamental</option>
-  <option value="medio">Médio</option>
-  <option value="superior">Superior</option>
-</select>
+            value={nivel}
+            onChange={(e) => {
+              setNivel(e.target.value);
+              setIndice(0);
+            }}
+            className="border p-2 rounded"
+          >
+            <option value="">Nível</option>
+            <option value="fundamental">Fundamental</option>
+            <option value="medio">Médio</option>
+            <option value="superior">Superior</option>
+          </select>
 
           <button
             onClick={() => {
               setDisciplina("");
               setBanca("");
               setAno("");
+              setNivel("");
               setIndice(0);
             }}
             className="bg-gray-200 rounded px-4"
@@ -184,7 +192,7 @@ export default function SimuladoClient({ questoes }: any) {
         </div>
       </div>
 
-      {/* 🔹 Barra de Progresso */}
+      {/* BARRA DE PROGRESSO */}
       <div>
         <div className="flex justify-between text-sm text-gray-500 mb-1">
           <span>
@@ -200,35 +208,35 @@ export default function SimuladoClient({ questoes }: any) {
         </div>
       </div>
 
-      {/* 🔹 Estatísticas */}
+      {/* ESTATÍSTICAS */}
       <div className="flex gap-6 text-sm">
         <span>✅ Acertos: {acertos}</span>
         <span>❌ Erros: {indice + 1 - acertos}</span>
       </div>
 
-      {/* 🔹 Card da Questão */}
+      {/* QUESTÃO */}
       <div className="bg-white p-6 rounded-xl shadow-sm border">
         <p className="text-xs text-gray-500 mb-2">
           {questao.disciplina} • {questao.banca} • {questao.ano}
         </p>
 
         {questao.textoBase && (
-  <p className="mb-4 whitespace-pre-line">
-    {questao.textoBase}
-  </p>
-)}
-
-      
+          <p className="mb-4 whitespace-pre-line">
+            {questao.textoBase}
+          </p>
+        )}
 
         {questao.imagem && (
-  <img
-    src={questao.imagem}
-    alt="Imagem da questão"
-    className="my-4 max-h-80 object-contain"
-  />
-)}
+          <img
+            src={questao.imagem}
+            alt="Imagem da questão"
+            className="my-4 max-h-80 object-contain"
+          />
+        )}
 
-        <h2 className="font-medium mb-6">{questao.enunciado}</h2>
+        <h2 className="font-medium mb-6">
+          {questao.enunciado}
+        </h2>
 
         <div className="space-y-3">
           {questao.alternativas.map((alt: any) => {
@@ -257,9 +265,7 @@ export default function SimuladoClient({ questoes }: any) {
         {selecionada && (
           <div className="mt-6">
             <button
-              onClick={() =>
-                setMostrarComentario(!mostrarComentario)
-              }
+              onClick={() => setMostrarComentario(!mostrarComentario)}
               className="text-[#2c3e50] font-medium text-sm"
             >
               {mostrarComentario
@@ -276,7 +282,7 @@ export default function SimuladoClient({ questoes }: any) {
         )}
       </div>
 
-      {/* 🔹 Navegação */}
+      {/* NAVEGAÇÃO */}
       <div className="flex justify-between">
         <button
           disabled={indice === 0}

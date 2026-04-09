@@ -8,9 +8,9 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
+ "prisma": {
+  "seed": "tsx prisma/seed.ts"
+},
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
     "@prisma/client": "^6.15.0",
@@ -24,13 +24,13 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",
     "@types/bcrypt": "^6.0.0",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "@types/react": "19.2.14",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
     "ts-node": "^10.9.2",
-    "tsx": "^4.x.x",
-    "typescript": "^5.x.x"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
