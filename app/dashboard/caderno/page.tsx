@@ -1,25 +1,26 @@
+import { cookies } from "next/headers";
+import { verificarToken } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export default async function CadernoPage() {
-  const respostas = await prisma.resposta.findMany({
-    include: { questao: true },
-    orderBy: { createdAt: "desc" }
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+
+  if (!token) {
+    throw new Error("Token não encontrado");
+  }
+
+  const decoded = verificarToken(token);
+
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.userId },
   });
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">
-        Meu Caderno de Respostas
-      </h1>
-
-      {respostas.map((r) => (
-        <div key={r.id} className="bg-white p-4 rounded shadow mb-4">
-          <p>{r.questao.enunciado}</p>
-          <p className={r.correta ? "text-green-600" : "text-red-600"}>
-            {r.correta ? "Acertou" : "Errou"}
-          </p>
-        </div>
-      ))}
+      <h1>Meu Caderno</h1>
+      <p>Bem-vindo, {user?.nome}</p>
     </div>
   );
 }

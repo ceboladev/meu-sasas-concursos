@@ -2,35 +2,43 @@ import { prisma } from "@/lib/prisma";
 import SimuladoClient from "@/components/SimuladoClient";
 import FiltroQuestoes from "@/components/FiltroQuestoes";
 
-export default async function DashboardPage({ searchParams }: any) {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<any>;
+}) {
+  const params = await searchParams;
 
-  const page = Number(searchParams.page || 1);
+  const page = Number(params.page || 1);
   const limit = 10;
 
   const where: any = {};
 
-  if (searchParams.banca) {
-    where.banca = { nome: searchParams.banca };
+  if (params.banca) {
+    where.banca = { nome: params.banca };
   }
 
-  if (searchParams.disciplina) {
-    where.disciplina = { nome: searchParams.disciplina };
+  if (params.disciplina) {
+    where.disciplina = { nome: params.disciplina };
   }
 
-  if (searchParams.orgao) {
-    where.orgao = { nome: searchParams.orgao };
+  if (params.orgao) {
+    where.orgao = { nome: params.orgao };
   }
 
-  if (searchParams.escolaridade) {
-    where.escolaridade = searchParams.escolaridade;
+  if (params.escolaridade) {
+    where.escolaridade = params.escolaridade;
   }
 
-  if (searchParams.busca) {
+  if (params.busca) {
     where.enunciado = {
-      contains: searchParams.busca,
+      contains: params.busca,
       mode: "insensitive",
     };
   }
+
+
+
 
   const questoes = await prisma.questao.findMany({
     where,

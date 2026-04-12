@@ -13,6 +13,7 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  respostas Resposta[]
 }
 
 model Questao {
@@ -22,6 +23,8 @@ model Questao {
   imagem        String?
   comentario    String?
   ano           Int
+  graficoJson Json?
+  respostas Resposta[]
 
   bancaId       String
   banca         Banca    @relation(fields: [bancaId], references: [id])
@@ -66,6 +69,27 @@ model Alternativa {
   isCorreta  Boolean
   questaoId  String
   questao    Questao @relation(fields: [questaoId], references: [id])
+  respostas Resposta[]
+}
+
+model Resposta {
+  id              String   @id @default(cuid())
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  questaoId       String
+  questao         Questao  @relation(fields: [questaoId], references: [id])
+
+  alternativaId   String
+  alternativa     Alternativa @relation(fields: [alternativaId], references: [id])
+
+  isCorreta       Boolean
+  
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([questaoId])
 }
 
 enum Escolaridade {

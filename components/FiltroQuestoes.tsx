@@ -62,6 +62,7 @@ export default function FiltroQuestoes() {
           <option value="Português">Português</option>
           <option value="Informática">Informática</option>
           <option value="Direito Constitucional">Direito Constitucional</option>
+          <option value="Matemática">Matemática</option>
         </select>
 
         <select

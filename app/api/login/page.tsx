@@ -33,7 +33,7 @@ export default function LoginPage() {
       localStorage.setItem("usuarioEmail", data.email);
 
       // Redirecionar para dashboard
-      router.push("/");
+      router.push("/dashboard");
     } catch (err) {
       console.error(err);
       setErro("Erro de conexão");

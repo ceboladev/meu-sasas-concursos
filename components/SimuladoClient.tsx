@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import GraficoBarras from "@/components/GraficoBarras";
 
 export default function SimuladoClient({ questoes }: any) {
   const router = useRouter();
@@ -119,7 +120,7 @@ export default function SimuladoClient({ questoes }: any) {
       </div>
 
       {/* FILTROS */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border">
+     {/* <div className="bg-white p-4 rounded-xl shadow-sm border">
         <div className="grid md:grid-cols-4 gap-4">
           <select
             value={disciplina}
@@ -191,7 +192,7 @@ export default function SimuladoClient({ questoes }: any) {
           </button>
         </div>
       </div>
-
+*/}
       {/* BARRA DE PROGRESSO */}
       <div>
         <div className="flex justify-between text-sm text-gray-500 mb-1">
@@ -236,7 +237,13 @@ export default function SimuladoClient({ questoes }: any) {
 
         <h2 className="font-medium mb-6">
           {questao.enunciado}
+
+          {questao.graficoJson && (
+  <GraficoBarras dados={questao.graficoJson} />
+)}
         </h2>
+
+        
 
         <div className="space-y-3">
           {questao.alternativas.map((alt: any) => {
