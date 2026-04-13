@@ -14,6 +14,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   respostas Resposta[]
+  caderno Caderno[]
 }
 
 model Questao {
@@ -25,6 +26,7 @@ model Questao {
   ano           Int
   graficoJson Json?
   respostas Resposta[]
+  caderno Caderno[]
 
   bancaId       String
   banca         Banca    @relation(fields: [bancaId], references: [id])
@@ -90,6 +92,18 @@ model Resposta {
 
   @@index([userId])
   @@index([questaoId])
+}
+
+model Caderno {
+  id        String   @id @default(cuid())
+  userId    String
+  questaoId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  questao   Questao  @relation(fields: [questaoId], references: [id])
+
+  @@unique([userId, questaoId]) // impede duplicação
 }
 
 enum Escolaridade {

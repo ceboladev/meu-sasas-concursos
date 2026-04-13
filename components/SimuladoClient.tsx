@@ -108,6 +108,23 @@ export default function SimuladoClient({ questoes }: any) {
           </button>
 
           <button
+  onClick={async () => {
+    await fetch("/api/caderno", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ questaoId: questao.id }),
+    });
+
+    alert("Questão salva no caderno!");
+  }}
+  className="bg-yellow-500 text-white px-3 py-1 rounded"
+>
+  Salvar no Caderno
+</button>
+
+          <button
             onClick={() => {
               localStorage.removeItem("logado");
               router.push("/login");

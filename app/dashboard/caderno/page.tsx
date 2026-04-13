@@ -1,26 +1,22 @@
+import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { verificarToken } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import CadernoClient from "./CadernoClient";
 
 export default async function CadernoPage() {
-
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
-  if (!token) {
-    throw new Error("Token não encontrado");
-  }
+  if (!token) throw new Error("Não autorizado");
 
-  const decoded = verificarToken(token);
+  const { userId } = verificarToken(token);
 
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.userId },
+  const questoes = await prisma.caderno.findMany({
+    where: { userId },
+    include: {
+      questao: true,
+    },
   });
 
-  return (
-    <div>
-      <h1>Meu Caderno</h1>
-      <p>Bem-vindo, {user?.nome}</p>
-    </div>
-  );
+  return <CadernoClient questoes={questoes} />;
 }
